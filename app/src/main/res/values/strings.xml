@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">FurEver</string>
+
+    <!--Bottom Navigation Tabs-->
+    <string name="tab_profile">Profile</string>
+    <string name="tab_liked">Liked</string>
+    <string name="tab_home">Home</string>
+    <string name="tab_messages">Messages</string>
+    <string name="tab_settings">Settings</string>
+</resources>
