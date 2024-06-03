@@ -2,6 +2,7 @@
 <resources>
 
     <style name="AppTheme" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@drawable/background</item>
         <item name="android:windowSplashScreenBackground">@color/transparent</item>
         <item name="android:windowSplashScreenAnimatedIcon">@null</item>
         <item name="android:windowSplashScreenIconBackgroundColor">@null</item>

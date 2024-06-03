@@ -1,33 +1,31 @@
 package com.epicmillennium.furever.presentation.ui.navigation
 
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.outlined.ChatBubbleOutline
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.annotation.DrawableRes
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import com.epicmillennium.furever.R
+import com.epicmillennium.furever.presentation.ui.navigation.AppDestinations.SPLASH_SCREEN
 
 /**
  * Destinations used in the [FurEverApp].
  */
 object AppDestinations {
     const val SPLASH_SCREEN = "splash_screen"
-    const val PROFILE = "home"
-    const val LIKED = "home"
+    const val PROFILE = "profile"
+    const val LIKED = "liked"
     const val HOME = "home"
-    const val MESSAGES = "home"
-    const val SETTINGS = "home"
+    const val MESSAGES = "messages"
 }
 
 data class AppTopLevelDestination(
     val route: String,
-    val selectedIcon: ImageVector,
-    val unselectedIcon: ImageVector,
-    val iconTextId: Int
+    @DrawableRes
+    val selectedIcon: Int,
+    @DrawableRes
+    val unselectedIcon: Int,
+    val iconTextId: Int,
+    val hasNews: Boolean,
+    val badgeCount: Int? = null
 )
 
 /**
@@ -36,22 +34,12 @@ data class AppTopLevelDestination(
 class AppNavigationActions(private val navController: NavController) {
     fun navigateToHome() {
         navController.navigate(AppDestinations.HOME) {
-            // Pop up to the start destination of the graph to
-            // avoid building up a large stack of destinations
-            // on the back stack as users select items
-            popUpTo(navController.graph.findStartDestination().id) {
-                saveState = true
-            }
-            // Avoid multiple copies of the same destination when
-            // re-selecting the same item
-            launchSingleTop = true
-            // Restore state when re-selecting a previously selected item
-            restoreState = true
+            popUpTo(SPLASH_SCREEN) { inclusive = true }
         }
     }
 
     fun navigateTo(destination: AppTopLevelDestination) {
-        navController.navigate(AppDestinations.HOME) {
+        navController.navigate(destination.route) {
             // Pop up to the start destination of the graph to
             // avoid building up a large stack of destinations
             // on the back stack as users select items
@@ -70,32 +58,31 @@ class AppNavigationActions(private val navController: NavController) {
 val TOP_LEVEL_DESTINATIONS = listOf(
     AppTopLevelDestination(
         route = AppDestinations.PROFILE,
-        selectedIcon = Icons.Default.Person,
-        unselectedIcon = Icons.Default.Person,
-        iconTextId = R.string.tab_profile
+        selectedIcon = R.drawable.ic_profile_selected,
+        unselectedIcon = R.drawable.ic_profile_unselected,
+        iconTextId = R.string.tab_profile,
+        hasNews = true
     ),
     AppTopLevelDestination(
         route = AppDestinations.LIKED,
-        selectedIcon = Icons.Default.Favorite,
-        unselectedIcon = Icons.Default.Favorite,
-        iconTextId = R.string.tab_liked
+        selectedIcon = R.drawable.ic_liked_selected,
+        unselectedIcon = R.drawable.ic_liked_unselected,
+        iconTextId = R.string.tab_liked,
+        hasNews = false
     ),
     AppTopLevelDestination(
         route = AppDestinations.HOME,
-        selectedIcon = Icons.Default.Home,
-        unselectedIcon = Icons.Default.Home,
-        iconTextId = R.string.tab_home
+        selectedIcon = R.drawable.ic_home_selected,
+        unselectedIcon = R.drawable.ic_home_unselected,
+        iconTextId = R.string.tab_home,
+        hasNews = false
     ),
     AppTopLevelDestination(
         route = AppDestinations.MESSAGES,
-        selectedIcon = Icons.Outlined.ChatBubbleOutline,
-        unselectedIcon = Icons.Outlined.ChatBubbleOutline,
-        iconTextId = R.string.tab_messages
+        selectedIcon = R.drawable.ic_chat_selected,
+        unselectedIcon = R.drawable.ic_chat_unselected,
+        iconTextId = R.string.tab_messages,
+        hasNews = false,
+        badgeCount = 3
     ),
-    AppTopLevelDestination(
-        route = AppDestinations.SETTINGS,
-        selectedIcon = Icons.Default.Settings,
-        unselectedIcon = Icons.Default.Settings,
-        iconTextId = R.string.tab_settings
-    )
 )

@@ -1,5 +1,7 @@
 package com.epicmillennium.furever.presentation.ui.navigation
 
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.tween
@@ -13,9 +15,15 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.epicmillennium.furever.presentation.ui.mainScreen.MainScreen
+import com.epicmillennium.furever.presentation.ui.home.HomeScreen
+import com.epicmillennium.furever.presentation.ui.liked.LikedScreen
+import com.epicmillennium.furever.presentation.ui.messages.MessagesScreen
 import com.epicmillennium.furever.presentation.ui.navigation.AppDestinations.HOME
+import com.epicmillennium.furever.presentation.ui.navigation.AppDestinations.LIKED
+import com.epicmillennium.furever.presentation.ui.navigation.AppDestinations.MESSAGES
+import com.epicmillennium.furever.presentation.ui.navigation.AppDestinations.PROFILE
 import com.epicmillennium.furever.presentation.ui.navigation.AppDestinations.SPLASH_SCREEN
+import com.epicmillennium.furever.presentation.ui.profile.ProfileScreen
 import com.epicmillennium.furever.presentation.ui.splashScreen.SplashScreen
 
 @Composable
@@ -39,28 +47,41 @@ fun AppNavGraph(
     NavHost(
         navController = navController,
         startDestination = startDestination,
-        modifier = modifier
+        enterTransition = { EnterTransition.None },
+        exitTransition = { ExitTransition.None },
+        modifier = modifier,
     ) {
-        composable(
-            route = SPLASH_SCREEN,
+        composable(route = SPLASH_SCREEN,
             enterTransition = {
-                fadeIn(animationSpec = tween(durationMillis = 1000))
+                fadeIn(animationSpec = animationSpec)
             }, exitTransition = {
-                fadeOut(animationSpec = tween(durationMillis = 1000))
+                fadeOut(animationSpec = animationSpec)
             }
         ) {
-            SplashScreen(navigateToHome = { navigationActions.navigateToHome() })
+            SplashScreen(
+                navigateToHome = {
+                    navigationActions.navigateToHome()
+                }
+            )
         }
-        composable(
-            route = HOME,
+        composable(route = PROFILE) { ProfileScreen() }
+        composable(route = LIKED) { LikedScreen() }
+        composable(route = HOME,
             enterTransition = {
-                scaleIn(animationSpec = animationSpec, initialScale = 0f)
+                if (startDestination == SPLASH_SCREEN) {
+                    scaleIn(animationSpec = animationSpec, initialScale = 0f)
+                } else {
+                    EnterTransition.None
+                }
             },
             exitTransition = {
-                fadeOut(animationSpec = tween(durationMillis = 1000))
+                if (startDestination == SPLASH_SCREEN) {
+                    fadeOut(animationSpec = tween(durationMillis = 1000))
+                } else {
+                    ExitTransition.None
+                }
             }
-        ) {
-            MainScreen()
-        }
+        ) { HomeScreen() }
+        composable(route = MESSAGES) { MessagesScreen() }
     }
 }
