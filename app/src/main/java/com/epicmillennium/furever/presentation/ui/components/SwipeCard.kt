@@ -45,6 +45,7 @@ import kotlin.math.roundToInt
 
 @Composable
 fun SwipeCard(
+    modifier: Modifier,
     dogProfile: DogProfile,
     pictureStates: List<ProfilePictureState>,
     onSwipeLeft: () -> Unit = {},
@@ -76,7 +77,7 @@ fun SwipeCard(
     }
 
     Box(
-        modifier = Modifier
+        modifier = modifier
             .offset { IntOffset(offsetX.value.roundToInt(), 0) }
             .pointerInput(Unit) {
                 detectHorizontalDragGestures(
@@ -166,7 +167,7 @@ fun SwipeCard(
                     contentAlignment = Alignment.BottomStart
                 ) {
                     Text(
-                        dogProfile.name,
+                        text = dogProfile.name,
                         style = TextStyle(color = Color.White, fontSize = 16.sp)
                     )
                 }

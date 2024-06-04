@@ -10,8 +10,8 @@ import com.epicmillennium.fureverdomain.profile.DogProfile
 import com.epicmillennium.fureverdomain.usecase.GetDogProfilesUseCase
 import com.epicmillennium.fureverdomain.usecase.GetPictureUseCase
 import com.epicmillennium.fureverdomain.usecase.LikeDogUseCase
-import com.epicmillennium.fureverdomain.usecase.SkippedDogUseCase
 import com.epicmillennium.fureverdomain.usecase.SendMessageUseCase
+import com.epicmillennium.fureverdomain.usecase.SkippedDogUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -28,8 +28,11 @@ class HomeViewModel @Inject constructor(
     private val getPictureUseCase: GetPictureUseCase
 ) : ViewModel() {
 
+    private lateinit var lastRemovedProfile: DogProfileState
+
     private val _uiState =
         MutableStateFlow(HomeViewState(HomeViewDialogState.NoDialog, HomeViewContentState.Loading))
+
     val uiState = _uiState.asStateFlow()
 
     init {
@@ -65,9 +68,27 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+    fun recoverLastProfile() {
+        if (::lastRemovedProfile.isInitialized) {
+            _uiState.update {
+                if (it.contentState is HomeViewContentState.Success) {
+                    if (lastRemovedProfile == it.contentState.dogProfileStates.last()) return@update it
+
+                    it.copy(
+                        contentState = it.contentState.copy(
+                            dogProfileStates = it.contentState.dogProfileStates + lastRemovedProfile
+                        )
+                    )
+                } else it
+            }
+        }
+    }
+
     fun removeLastProfile() {
         _uiState.update {
             if (it.contentState is HomeViewContentState.Success) {
+                lastRemovedProfile = it.contentState.dogProfileStates.last()
+
                 it.copy(
                     contentState = it.contentState.copy(
                         dogProfileStates = it.contentState.dogProfileStates.dropLast(

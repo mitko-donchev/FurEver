@@ -13,6 +13,7 @@ fun HomeScreen() {
 
     HomeView(
         uiState = uiState,
+        recoverLastProfile = homeViewModel::recoverLastProfile,
         removeLastProfile = homeViewModel::removeLastProfile,
         fetchDogProfiles = homeViewModel::fetchDogProfiles,
         swipeDog = homeViewModel::swipeDog,
