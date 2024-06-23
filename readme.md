@@ -1,3 +1,5 @@
+[![Android CI](https://github.com/mitko-donchev/FurEver/actions/workflows/android.yml/badge.svg?branch=master)](https://github.com/mitko-donchev/FurEver/actions/workflows/android.yml)
+
 # **FurEver - Stray Dog Adoption App**
 
 **FurEver** aims to revolutionize the way stray dogs find their forever homes. Mimicking the user
