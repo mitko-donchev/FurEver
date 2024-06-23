@@ -43,6 +43,10 @@ import kotlinx.coroutines.launch
 import kotlin.math.abs
 import kotlin.math.roundToInt
 
+enum class SwipeDirection {
+    Left, Right
+}
+
 @Composable
 fun SwipeCard(
     modifier: Modifier,
@@ -51,7 +55,8 @@ fun SwipeCard(
     onSwipeLeft: () -> Unit = {},
     onSwipeRight: () -> Unit = {},
     swipeThreshold: Float = 375f,
-    sensitivityFactor: Float = 3f
+    sensitivityFactor: Float = 3f,
+    onSwiped: (direction: (SwipeDirection) -> Unit) -> Unit
 ) {
     var currentIndex by remember { mutableIntStateOf(0) }
 
@@ -76,13 +81,31 @@ fun SwipeCard(
         }
     }
 
+    // Expose swipe function
+    LaunchedEffect(Unit) {
+        onSwiped { direction ->
+            coroutineScope.launch {
+                val targetOffset = if (direction == SwipeDirection.Right) {
+                    swipeThreshold + 100f
+                } else {
+                    -swipeThreshold - 100f
+                }
+                offsetX.animateTo(targetOffset, tween(300))
+                if (direction == SwipeDirection.Right) {
+                    dismissRight = true
+                } else {
+                    dismissLeft = true
+                }
+            }
+        }
+    }
+
     Box(
         modifier = modifier
             .offset { IntOffset(offsetX.value.roundToInt(), 0) }
             .pointerInput(Unit) {
                 detectHorizontalDragGestures(
                     onDragEnd = {
-                        // Check if swipe thresholds are reached
                         when {
                             offsetX.value > swipeThreshold -> {
                                 dismissRight = true
@@ -91,8 +114,8 @@ fun SwipeCard(
                             offsetX.value < -swipeThreshold -> {
                                 dismissLeft = true
                             }
+
                             else -> {
-                                // Animate back to the center if the swipe threshold was not reached
                                 coroutineScope.launch {
                                     offsetX.animateTo(0f, tween(300))
                                 }
@@ -100,13 +123,10 @@ fun SwipeCard(
                         }
                     }
                 ) { change, dragAmount ->
-                    // Update offset value
                     coroutineScope.launch {
                         val newOffset = offsetX.value + (dragAmount / density) * sensitivityFactor
                         offsetX.snapTo(newOffset)
                     }
-
-                    // Consume the gesture change
                     if (change.positionChange() != Offset.Zero) change.consume()
                 }
             }
@@ -127,7 +147,6 @@ fun SwipeCard(
                 )
         ) {
             Box(modifier = Modifier.fillMaxSize()) {
-                //Picture
                 when (val picture = pictureStates[currentIndex]) {
                     is ProfilePictureState.Loading -> {
                         Box(

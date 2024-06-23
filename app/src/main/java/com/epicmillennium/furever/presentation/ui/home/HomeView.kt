@@ -16,6 +16,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -34,6 +35,7 @@ import com.epicmillennium.furever.R
 import com.epicmillennium.furever.presentation.ui.components.GradientButton
 import com.epicmillennium.furever.presentation.ui.components.RoundedIconButtonWithShadow
 import com.epicmillennium.furever.presentation.ui.components.SwipeCard
+import com.epicmillennium.furever.presentation.ui.components.SwipeDirection
 import com.epicmillennium.furever.presentation.ui.components.dialog.NewAdoptionDialog
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -119,6 +121,7 @@ fun HomeView(
 
                     val localDensity = LocalDensity.current
                     var buttonRowHeightDp by remember { mutableStateOf(0.dp) }
+                    val swipeFunctionsMap = remember { mutableStateMapOf<Int, (SwipeDirection) -> Unit>() }
 
                     Box(Modifier.fillMaxSize()) {
                         Text(
@@ -128,7 +131,7 @@ fun HomeView(
                             modifier = Modifier.align(Alignment.Center)
                         )
 
-                        uiState.contentState.dogProfileStates.forEachIndexed { _, profileState ->
+                        uiState.contentState.dogProfileStates.forEachIndexed { index, profileState ->
                             SwipeCard(
                                 modifier = Modifier.padding(bottom = buttonRowHeightDp.plus(16.dp)),
                                 dogProfile = profileState.dogProfile,
@@ -147,10 +150,14 @@ fun HomeView(
                                     )
                                     removeLastProfile()
                                 },
+                                onSwiped = { swipeFunction ->
+                                    swipeFunctionsMap[index] = swipeFunction
+                                }
                             )
                         }
 
                         if (uiState.contentState.dogProfileStates.isNotEmpty()) {
+                            val currentProfileIndex = uiState.contentState.dogProfileStates.size - 1
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -166,11 +173,7 @@ fun HomeView(
                                     painterResource(id = R.drawable.ic_skip_dog),
                                     "Skip dog profile",
                                     onClick = {
-                                        swipeDog(
-                                            uiState.contentState.dogProfileStates.first(),
-                                            false
-                                        )
-                                        removeLastProfile()
+                                        swipeFunctionsMap[currentProfileIndex]?.invoke(SwipeDirection.Left)
                                     }
                                 )
                                 Spacer(modifier = Modifier.width(8.dp))
@@ -186,11 +189,7 @@ fun HomeView(
                                     painterResource(id = R.drawable.ic_like_dog),
                                     "Like dog profile",
                                     onClick = {
-                                        swipeDog(
-                                            uiState.contentState.dogProfileStates.first(),
-                                            true
-                                        )
-                                        removeLastProfile()
+                                        swipeFunctionsMap[currentProfileIndex]?.invoke(SwipeDirection.Right)
                                     }
                                 )
                             }
