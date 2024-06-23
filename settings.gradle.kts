@@ -19,6 +19,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "FurEver Home"
+rootProject.name = "FurEver"
 include(":app")
- 
+include(":data")
+include(":domain")
